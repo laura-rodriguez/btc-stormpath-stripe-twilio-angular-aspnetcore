@@ -21,7 +21,6 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
         private readonly AccountService _accountService;
         private readonly SMSService _smsService;
         private readonly BitcoinExchangerRateService _bitcoinExchangerRateService;
-        private readonly string FIXED_TEST_NUMBER = "14055485453";
         private readonly int FIXED_TOTAL_QUERY_INCREMENT = 1;
 
         public MessageController(AccountService accountService, SMSService smsService, BitcoinExchangerRateService bitcoinExchangerRateService)
@@ -52,7 +51,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
                 var btcExchangeRate = await _bitcoinExchangerRateService.GetBitcoinExchangeRate();
                 var message = $"1 Bitcoin is currently worth ${btcExchangeRate} USD.";
 
-                _smsService.SendSMS(FIXED_TEST_NUMBER, message, payload.PhoneNumber);
+                _smsService.SendSMS(message, payload.PhoneNumber);
 
                 userAccountInfo = await _accountService.UpdateUserTotalQueries(HttpContext.User.Identity, FIXED_TOTAL_QUERY_INCREMENT);
                 userAccountInfo = await _accountService.UpdateUserBalance(HttpContext.User.Identity, -PaymentService.FIXED_COST_PER_QUERY);

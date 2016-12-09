@@ -19,7 +19,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Services
             _smsSettings = smsSettings.Value;
         }
 
-        public async void SendSMS(string toNumber, string message, string phoneNumber)
+        public async void SendSMS(string message, string phoneNumber)
         {
             using (var client = new HttpClient { BaseAddress = new Uri(_smsSettings.BaseUri) })
             {
@@ -35,7 +35,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Services
 
                 var content = new FormUrlEncodedContent(new[]
                 {
-                    new KeyValuePair<string, string>("To",String.Format("+{0}", phoneNumber)),
+                    new KeyValuePair<string, string>("To", $"+{phoneNumber}"),
                     new KeyValuePair<string, string>("From", _smsSettings.From),
                     new KeyValuePair<string, string>("Body", message)
                 });
