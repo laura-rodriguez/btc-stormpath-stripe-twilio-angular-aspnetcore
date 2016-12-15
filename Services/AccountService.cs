@@ -13,8 +13,8 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Services
     public class AccountService
     {
         private readonly IApplication stormpathApplication;
-        private readonly string KEY_BALANCE = "Balance";
-        private readonly string KEY_TOTAL_QUERIES = "TotalQueries";
+        public static readonly string KEY_BALANCE = "Balance";
+        public static readonly string KEY_TOTAL_QUERIES = "TotalQueries";
         
 
         private async Task<IAccount> GetUserAccount(IIdentity userIdentity)

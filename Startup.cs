@@ -42,8 +42,8 @@ namespace stormpath_angularjs_dotnet_stripe_twilio
             services.AddStormpath(new StormpathOptions() {
                 PostRegistrationHandler = async (ctx, ct) =>
                 {
-                    ctx.Account.CustomData["Balance"] = 0;
-                    ctx.Account.CustomData["TotalQueries"] = 0;
+                    ctx.Account.CustomData[AccountService.KEY_BALANCE] = 0;
+                    ctx.Account.CustomData[AccountService.KEY_TOTAL_QUERIES] = 0;
                     await ctx.Account.SaveAsync();
                     await ctx.Account.CreateApiKeyAsync();
                 },
