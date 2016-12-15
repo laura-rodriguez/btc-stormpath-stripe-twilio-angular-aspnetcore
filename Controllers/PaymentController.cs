@@ -25,8 +25,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
         }
 
         [HttpPost]
-        [Route("AddCredit")]
-        public async Task<IActionResult> AddCredit([FromBody] PaymentFormData formData)
+        public async Task<IActionResult> Post([FromBody] PaymentFormData formData)
         {
             if (_paymentService.ProcessPayment(formData.Token, PaymentService.FIXED_AMOUNT))
             {

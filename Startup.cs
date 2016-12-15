@@ -86,8 +86,8 @@ namespace stormpath_angularjs_dotnet_stripe_twilio
                     c.Request.Path = "/index.html";
                     await next();
                 }
-            })
-            .UseCors("AllowAll")
+            });
+            app.UseCors("AllowAll")
             .UseMvc()
             .UseDefaultFiles(options)
             .UseStaticFiles();

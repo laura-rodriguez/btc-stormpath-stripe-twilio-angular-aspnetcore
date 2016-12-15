@@ -30,9 +30,8 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
             _bitcoinExchangerRateService = bitcoinExchangerRateService;
         }        
 
-        [HttpPost]
-        [Route("SendSMS")]
-        public async Task<IActionResult> SendSMS([FromBody] SendSMSRequest payload)
+        [HttpPost]        
+        public async Task<IActionResult> Post([FromBody] SendSMSRequest payload)
         {
             if(string.IsNullOrEmpty(payload.PhoneNumber))
             {
@@ -51,7 +50,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
                 var btcExchangeRate = await _bitcoinExchangerRateService.GetBitcoinExchangeRate();
                 var message = $"1 Bitcoin is currently worth ${btcExchangeRate} USD.";
 
-                _smsService.SendSMS(message, payload.PhoneNumber);
+                await _smsService.SendSMS(message, payload.PhoneNumber);
 
                 userAccountInfo = await _accountService.UpdateUserTotalQueries(HttpContext.User.Identity, FIXED_TOTAL_QUERY_INCREMENT);
                 userAccountInfo = await _accountService.UpdateUserBalance(HttpContext.User.Identity, -PaymentService.FIXED_COST_PER_QUERY);

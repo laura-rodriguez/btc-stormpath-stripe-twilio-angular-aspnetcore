@@ -3,15 +3,15 @@
 
     function dashboardService($http) {
         var addCredit = function (payload) {
-            return $http.post('/api/payment/addcredit', payload);
+            return $http.post('/api/payment', payload);
         };
 
         var loadData = function () {
-            return $http.get('/api/account/getUserAccountInfo');
+            return $http.get('/api/me');
         };
 
         var sendBitcoinRate = function (payload) {
-            return $http.post('/api/message/sendsms', payload);
+            return $http.post('/api/message', payload);
         };
 
         return {

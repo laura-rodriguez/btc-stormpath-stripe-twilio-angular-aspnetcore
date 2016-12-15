@@ -12,19 +12,19 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
 {
     
     [Route("api/[controller]")]
-    public class AccountController : Controller
+    public class MeController : Controller
     {
         private readonly AccountService _accountService;
 
-        public AccountController(AccountService accountService)
+        public MeController(AccountService accountService)
         {
             _accountService = accountService;
         }
 
 
         // GET: /<controller>/
-        [Route("GetUserAccountInfo")]
-        public async Task<IActionResult> GetUserAccountInfo()
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
             var userAccountInfo = await _accountService.GetUserAccountInfo(HttpContext.User.Identity);
 

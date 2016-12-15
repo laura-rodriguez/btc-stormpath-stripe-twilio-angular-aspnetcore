@@ -19,7 +19,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Services
             _smsSettings = smsSettings.Value;
         }
 
-        public async void SendSMS(string message, string phoneNumber)
+        public async Task SendSMS(string message, string phoneNumber)
         {
             using (var client = new HttpClient { BaseAddress = new Uri(_smsSettings.BaseUri) })
             {

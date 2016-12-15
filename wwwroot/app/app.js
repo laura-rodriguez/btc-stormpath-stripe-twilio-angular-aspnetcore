@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   function config($stateProvider, $urlRouterProvider, $locationProvider, STORMPATH_CONFIG) {
-      window.Stripe.setPublishableKey('pk_test_6l36FsR7v73N4i7793Tylb2L');
+      window.Stripe.setPublishableKey('YOUR_STRIPE_PUBLIC_KEY');
       $locationProvider.html5Mode(true);
       STORMPATH_CONFIG.FORM_CONTENT_TYPE = 'application/json';
 
