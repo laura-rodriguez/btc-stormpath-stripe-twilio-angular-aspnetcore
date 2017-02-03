@@ -29,7 +29,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
         {
             if (_paymentService.ProcessPayment(formData.Token, PaymentService.FIXED_AMOUNT))
             {
-                var userAccountInfo = await _accountService.UpdateUserBalance(HttpContext.User.Identity, PaymentService.FIXED_AMOUNT);
+                var userAccountInfo = await _accountService.UpdateUserBalance(PaymentService.FIXED_AMOUNT);
                 return Ok(userAccountInfo);
             }
             else

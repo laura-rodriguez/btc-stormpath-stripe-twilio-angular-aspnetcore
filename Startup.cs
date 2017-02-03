@@ -54,7 +54,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio
             services.AddTransient<PaymentService>();
             services.AddTransient<AccountService>();
             services.AddTransient<SMSService>();
-            services.AddTransient<BitcoinExchangerRateService>();
+            services.AddTransient<BitcoinExchangeRateService>();
             services.AddDbContext<ApiContext>(opt => opt.UseInMemoryDatabase());
             services.Configure<SMSSettings>(Configuration.GetSection("SMSSettings"));
             services.Configure<PaymentSettings>(Configuration.GetSection("PaymentSettings"));

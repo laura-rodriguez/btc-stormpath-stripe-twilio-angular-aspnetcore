@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace stormpath_angularjs_dotnet_stripe_twilio.Services
 {
-    public class BitcoinExchangerRateService
+    public class BitcoinExchangeRateService
     {
         public async Task<decimal> GetBitcoinExchangeRate()
         {

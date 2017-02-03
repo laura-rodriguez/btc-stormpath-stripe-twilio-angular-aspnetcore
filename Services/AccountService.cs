@@ -12,21 +12,22 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Services
 {
     public class AccountService
     {
-        private readonly IApplication stormpathApplication;
+        private readonly IApplication _stormpathApplication;
+        private readonly IAccount _account;
         public static readonly string KEY_BALANCE = "Balance";
         public static readonly string KEY_TOTAL_QUERIES = "TotalQueries";
-        
 
-        private async Task<IAccount> GetUserAccount(IIdentity userIdentity)
+        public AccountService(IAccount account, IApplication stormpathApplication)
         {
-            return await stormpathApplication.GetAccounts().Where(x => x.Email == userIdentity.Name).FirstOrDefaultAsync();
+            _account = account;
+            _stormpathApplication = stormpathApplication;
         }
-
-        private async Task<UserAccountInfo> GetUserAccountInfo(IAccount userAccount)
+        
+        public async Task<UserAccountInfo> GetUserAccountInfo()
         {
-            UserAccountInfo userAccountInfo = new UserAccountInfo();
-            var apiKeys = await userAccount.GetApiKeys().FirstAsync();
-            var accountCustomData = await userAccount.GetCustomDataAsync();
+            var userAccountInfo = new UserAccountInfo();
+            var apiKeys = await _account.GetApiKeys().FirstAsync();
+            var accountCustomData = await _account.GetCustomDataAsync();
             userAccountInfo.ApiKeyId = apiKeys.Id;
             userAccountInfo.ApiKeySecret = apiKeys.Secret;
             userAccountInfo.Balance = decimal.Parse(accountCustomData[KEY_BALANCE].ToString());
@@ -35,47 +36,26 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Services
             return userAccountInfo;
         }
 
-        public AccountService(IApplication stormpathApplication)
+        private async Task UpdateNumericCustomData(decimal amount, string key)
         {
-            this.stormpathApplication = stormpathApplication;
+            var customData = await _account.GetCustomDataAsync();
+
+            _account.CustomData[key] = Int64.Parse(customData[key].ToString()) + amount;
+            await _account.SaveAsync();
         }
 
-        public async Task<UserAccountInfo> GetUserAccountInfo(IIdentity userIdentity)
+        public async Task<UserAccountInfo> UpdateUserBalance(decimal amount)
         {
-            var userAccount = await GetUserAccount(userIdentity);
-            return await GetUserAccountInfo(userAccount);
+            await UpdateNumericCustomData(amount, KEY_BALANCE);
+           
+            return await GetUserAccountInfo();
         }
 
-        private async Task UpdateNumericCustomData(IAccount userAccount, decimal amount, string key)
+        public async Task<UserAccountInfo> UpdateUserTotalQueries(int totalQueries)
         {
-            var customData = await userAccount.GetCustomDataAsync();
-
-            userAccount.CustomData[key] = Int64.Parse(customData[key].ToString()) + amount;
-            await userAccount.SaveAsync();
-        }
-
-        public async Task<UserAccountInfo> UpdateUserBalance(IIdentity userIdentity, decimal amount)
-        {
-            var userAccount = await GetUserAccount(userIdentity);
-
-            if (userAccount != null)
-            {
-                await UpdateNumericCustomData(userAccount, amount, KEY_BALANCE);
-            }
-
-            return await GetUserAccountInfo(userAccount);
-        }
-
-        public async Task<UserAccountInfo> UpdateUserTotalQueries(IIdentity userIdentity, int totalQueries)
-        {
-            var userAccount = await GetUserAccount(userIdentity);
-
-            if (userAccount != null)
-            {
-                await UpdateNumericCustomData(userAccount, totalQueries, KEY_TOTAL_QUERIES);
-            }
-
-            return await GetUserAccountInfo(userAccount);
+            await UpdateNumericCustomData(totalQueries, KEY_TOTAL_QUERIES);
+            
+            return await GetUserAccountInfo();
         }
     }
 }

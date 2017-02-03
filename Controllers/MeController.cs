@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
 {
-    
+ 
+    [Authorize]   
     [Route("api/[controller]")]
     public class MeController : Controller
     {
@@ -26,7 +27,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var userAccountInfo = await _accountService.GetUserAccountInfo(HttpContext.User.Identity);
+            var userAccountInfo = await _accountService.GetUserAccountInfo();
 
             return Ok(userAccountInfo);
         }

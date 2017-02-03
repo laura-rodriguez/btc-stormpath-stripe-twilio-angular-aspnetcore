@@ -20,10 +20,9 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
     {
         private readonly AccountService _accountService;
         private readonly SMSService _smsService;
-        private readonly BitcoinExchangerRateService _bitcoinExchangerRateService;
-        private readonly int FIXED_TOTAL_QUERY_INCREMENT = 1;
+        private readonly BitcoinExchangeRateService _bitcoinExchangerRateService;
 
-        public MessageController(AccountService accountService, SMSService smsService, BitcoinExchangerRateService bitcoinExchangerRateService)
+        public MessageController(AccountService accountService, SMSService smsService, BitcoinExchangeRateService bitcoinExchangerRateService)
         {
             _accountService = accountService;
             _smsService = smsService;
@@ -38,7 +37,7 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
                 return BadRequest("Invalid phone number");
             }
 
-            var userAccountInfo = await _accountService.GetUserAccountInfo(HttpContext.User.Identity);
+            var userAccountInfo = await _accountService.GetUserAccountInfo();
 
             if (userAccountInfo.Balance == 0)
             {
@@ -52,8 +51,8 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
 
                 await _smsService.SendSMS(message, payload.PhoneNumber);
 
-                userAccountInfo = await _accountService.UpdateUserTotalQueries(HttpContext.User.Identity, FIXED_TOTAL_QUERY_INCREMENT);
-                userAccountInfo = await _accountService.UpdateUserBalance(HttpContext.User.Identity, -PaymentService.FIXED_COST_PER_QUERY);
+                userAccountInfo = await _accountService.UpdateUserTotalQueries(1);
+                userAccountInfo = await _accountService.UpdateUserBalance(-PaymentService.FIXED_COST_PER_QUERY);
 
                 return Ok(userAccountInfo);
             }
