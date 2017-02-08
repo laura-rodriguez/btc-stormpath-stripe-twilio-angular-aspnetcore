@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using stormpath_angularjs_dotnet_stripe_twilio.Services;
-using System.Net.Http;
 using System.Net;
-using Newtonsoft.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using stormpath_angularjs_dotnet_stripe_twilio.Models;
-
-// For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+using stormpath_angularjs_dotnet_stripe_twilio.Services;
 
 namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
 {
@@ -19,18 +13,21 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
     public class MessageController : Controller
     {
         private readonly AccountService _accountService;
-        private readonly SMSService _smsService;
-        private readonly BitcoinExchangeRateService _bitcoinExchangerRateService;
+        private readonly SmsService _smsService;
+        private readonly BitcoinExchangeRateService _bitcoinExchangeRateService;
 
-        public MessageController(AccountService accountService, SMSService smsService, BitcoinExchangeRateService bitcoinExchangerRateService)
+        public MessageController(
+            AccountService accountService,
+            SmsService smsService,
+            BitcoinExchangeRateService bitcoinExchangeRateService)
         {
             _accountService = accountService;
             _smsService = smsService;
-            _bitcoinExchangerRateService = bitcoinExchangerRateService;
+            _bitcoinExchangeRateService = bitcoinExchangeRateService;
         }        
 
         [HttpPost]        
-        public async Task<IActionResult> Post([FromBody] SendSMSRequest payload)
+        public async Task<IActionResult> Post([FromBody] SendSmsRequest payload)
         {
             if(string.IsNullOrEmpty(payload.PhoneNumber))
             {
@@ -46,14 +43,15 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Controllers
 
             try
             {
-                var btcExchangeRate = await _bitcoinExchangerRateService.GetBitcoinExchangeRate();
+                var btcExchangeRate = await _bitcoinExchangeRateService.GetBitcoinExchangeRate();
                 var message = $"1 Bitcoin is currently worth ${btcExchangeRate} USD.";
 
-                await _smsService.SendSMS(message, payload.PhoneNumber);
+                await _smsService.SendSms(message, payload.PhoneNumber);
 
-                userAccountInfo = await _accountService.UpdateUserTotalQueries(1);
-                userAccountInfo = await _accountService.UpdateUserBalance(-PaymentService.FIXED_COST_PER_QUERY);
+                await _accountService.UpdateUserTotalQueries(1);
+                await _accountService.UpdateUserBalance(-PaymentService.CostPerQuery);
 
+                userAccountInfo = await _accountService.GetUserAccountInfo();
                 return Ok(userAccountInfo);
             }
             catch(Exception ex)
