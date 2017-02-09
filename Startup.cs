@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -9,12 +6,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Stormpath.AspNetCore;
-using WebApiAngularStorm.Models;
 using stormpath_angularjs_dotnet_stripe_twilio.Models;
-using Stripe;
 using stormpath_angularjs_dotnet_stripe_twilio.Services;
-using Stormpath.Configuration.Abstractions;
-using System.IO;
+using Stripe;
+using WebApiAngularStorm.Models;
 
 namespace stormpath_angularjs_dotnet_stripe_twilio
 {
@@ -27,10 +22,12 @@ namespace stormpath_angularjs_dotnet_stripe_twilio
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
-                if (env.IsDevelopment())
-                {
-                    builder.AddUserSecrets();
-                }
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets();
+            }
+
             Configuration = builder.Build();
         }
 
@@ -42,22 +39,25 @@ namespace stormpath_angularjs_dotnet_stripe_twilio
             services.AddStormpath(new StormpathOptions() {
                 PostRegistrationHandler = async (ctx, ct) =>
                 {
-                    ctx.Account.CustomData[AccountService.KEY_BALANCE] = 0;
-                    ctx.Account.CustomData[AccountService.KEY_TOTAL_QUERIES] = 0;
-                    await ctx.Account.SaveAsync();
-                    await ctx.Account.CreateApiKeyAsync();
-                },
-                
-            }
-            );
+                    // Set the initial balance and query count
+                    ctx.Account.CustomData[AccountService.BalanceKey] = 0;
+                    ctx.Account.CustomData[AccountService.TotalQueriesKey] = 0;
+                    await ctx.Account.SaveAsync(ct);
+
+                    // Create an API key for the user
+                    await ctx.Account.CreateApiKeyAsync(ct);
+                }
+            });
+
             services.AddTransient<StripeChargeService>();
             services.AddTransient<PaymentService>();
             services.AddTransient<AccountService>();
-            services.AddTransient<SMSService>();
+            services.AddTransient<SmsService>();
             services.AddTransient<BitcoinExchangeRateService>();
             services.AddDbContext<ApiContext>(opt => opt.UseInMemoryDatabase());
-            services.Configure<SMSSettings>(Configuration.GetSection("SMSSettings"));
+            services.Configure<SmsSettings>(Configuration.GetSection("SMSSettings"));
             services.Configure<PaymentSettings>(Configuration.GetSection("PaymentSettings"));
+
             // Add framework services.
             services.AddMvc();
         }
@@ -67,9 +67,11 @@ namespace stormpath_angularjs_dotnet_stripe_twilio
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
             app.UseStormpath();
+
             var context = app.ApplicationServices.GetService<ApiContext>();
-            SeedDatabase(context);            
+            SeedDatabase(context);
 
             DefaultFilesOptions options = new DefaultFilesOptions();
             options.DefaultFileNames.Clear();

@@ -33,7 +33,7 @@
     <form ng-if="vm.balance > 0" class="form-inline send-sms-form" ng-submit="vm.sendBitcoinExchangeRate()">
         <div class="form-group">
             <label for="phone-number">Phone number:</label>
-            <input type="number" class="form-control" id="phone-number" name="phone-number" value="" ng-model="vm.phoneNumber" />
+            <input type="text" class="form-control" id="phone-number" name="phone-number" placeholder="ex. +15551234567" value="" ng-model="vm.phoneNumber" />
         </div>
         <button type="submit" class="btn btn-default btn-primary">Send BitCoin Rate by SMS</button>
         <div ng-if="vm.sendingSMS" class="sending-sms-spinner">

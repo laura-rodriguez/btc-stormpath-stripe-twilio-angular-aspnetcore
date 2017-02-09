@@ -1,26 +1,20 @@
-﻿using Stormpath.SDK;
-using Stormpath.SDK.Account;
-using Stormpath.SDK.Application;
-using stormpath_angularjs_dotnet_stripe_twilio.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
+﻿using System;
 using System.Threading.Tasks;
+using Stormpath.SDK;
+using Stormpath.SDK.Account;
+using stormpath_angularjs_dotnet_stripe_twilio.Models;
 
 namespace stormpath_angularjs_dotnet_stripe_twilio.Services
 {
     public class AccountService
     {
-        private readonly IApplication _stormpathApplication;
         private readonly IAccount _account;
-        public static readonly string KEY_BALANCE = "Balance";
-        public static readonly string KEY_TOTAL_QUERIES = "TotalQueries";
+        public static readonly string BalanceKey = "Balance";
+        public static readonly string TotalQueriesKey = "TotalQueries";
 
-        public AccountService(IAccount account, IApplication stormpathApplication)
+        public AccountService(IAccount account)
         {
             _account = account;
-            _stormpathApplication = stormpathApplication;
         }
         
         public async Task<UserAccountInfo> GetUserAccountInfo()
@@ -28,34 +22,31 @@ namespace stormpath_angularjs_dotnet_stripe_twilio.Services
             var userAccountInfo = new UserAccountInfo();
             var apiKeys = await _account.GetApiKeys().FirstAsync();
             var accountCustomData = await _account.GetCustomDataAsync();
+
             userAccountInfo.ApiKeyId = apiKeys.Id;
             userAccountInfo.ApiKeySecret = apiKeys.Secret;
-            userAccountInfo.Balance = decimal.Parse(accountCustomData[KEY_BALANCE].ToString());
-            userAccountInfo.TotalQueries = int.Parse(accountCustomData[KEY_TOTAL_QUERIES].ToString());
+            userAccountInfo.Balance = decimal.Parse(accountCustomData[BalanceKey].ToString());
+            userAccountInfo.TotalQueries = int.Parse(accountCustomData[TotalQueriesKey].ToString());
 
             return userAccountInfo;
         }
 
-        private async Task UpdateNumericCustomData(decimal amount, string key)
+        public async Task UpdateUserBalance(decimal amount)
         {
             var customData = await _account.GetCustomDataAsync();
+            var oldValue = decimal.Parse(customData[BalanceKey].ToString());
 
-            _account.CustomData[key] = Int64.Parse(customData[key].ToString()) + amount;
-            await _account.SaveAsync();
+            customData[BalanceKey] = oldValue + amount;
+            await customData.SaveAsync();
         }
 
-        public async Task<UserAccountInfo> UpdateUserBalance(decimal amount)
+        public async Task UpdateUserTotalQueries(int totalQueries)
         {
-            await UpdateNumericCustomData(amount, KEY_BALANCE);
-           
-            return await GetUserAccountInfo();
-        }
+            var customData = await _account.GetCustomDataAsync();
+            var oldValue = int.Parse(customData[TotalQueriesKey].ToString());
 
-        public async Task<UserAccountInfo> UpdateUserTotalQueries(int totalQueries)
-        {
-            await UpdateNumericCustomData(totalQueries, KEY_TOTAL_QUERIES);
-            
-            return await GetUserAccountInfo();
+            customData[TotalQueriesKey] = oldValue + totalQueries;
+            await customData.SaveAsync();
         }
     }
 }
